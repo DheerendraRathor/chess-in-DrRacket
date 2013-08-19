@@ -1,0 +1,139 @@
+#lang racket
+
+(require racket/include)
+;(require racket/draw)
+(include "chess.ss")
+;(include "Networking.rkt")
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define player1-name "")
+(define player2-name "")
+(define ipent "")
+(define t 0)
+
+(define new-frame (new frame%
+                       [label "CHESS"]
+                       [width 757]
+                       [height 566]))
+(send new-frame show #t)
+
+(define 1p (instantiate dialog% ("1 PLAYER")))
+(define 2p (instantiate dialog% ("2 PLAYER")))
+(define lan (instantiate dialog% ("LANchess")))
+(define start (instantiate dialog% ("LANchess start")))
+(define exist (instantiate dialog% ("Internet Protocol")))
+
+(define p11 (new text-field% [parent 1p] [label "Your name"]))
+(define p12 (new text-field% [parent 2p] [label "player-1 name"]))
+(define p22 (new text-field% [parent 2p] [label "player-2 name"]))
+(define timing (new text-field% [parent 2p] [label "Desired time"] [init-value "standard"]))
+(define plan (new text-field% [parent lan] [label "Your name"]))
+(define s (new text-field% [parent exist] [label "IP:"]))
+
+(define level (new choice% [label "Difficulty"] [parent 1p] [choices 
+                                                             (list "Novice" "Piece of Cake"  "Walk in the Park" "Small Fight" "Rough Rumble")] [selection 1]
+                  [callback (lambda (b e)
+                              (let ([event (send b get-selection)])
+                                (cond [(= event 0) (change-n 1)]
+                                      [(= event 1) (void)]
+                                      [(= event 2) (set! hard #t)]
+                                      [(= event 3) (change-n 3)]
+                                      ((= event 4) (change-n 4)))))]))
+
+
+(define b1 (new button% [parent 1p] [label "start"] [callback 
+                                          (lambda (b e)
+                                            (begin (set! player1-name (send p11 get-value)) (send new-frame show #f) (send 1p show #f) 
+                                                   (send move-frame show #t) (computer player1-name)))]))
+
+(define b2 (new button% [parent 2p] [label "start"] [callback 
+                                          (lambda (b e)
+                                            (begin (set! player1-name (send p12 get-value)) (set! player2-name (send p22 get-value))
+                                                   (if (eq? #f (string->number (send timing get-value)))
+                                                       (set! t "") (set! t (string->number (send timing get-value))))
+                                                   (send new-frame show #f) (send 2p show #f)
+                                                   (send move-frame show #t) (start2player player1-name player2-name t)))]))
+
+(define b3 (new button% [parent lan] [label "create server"] [callback
+                                                   (lambda (b e)
+                                                     (begin (set! player1-name (send plan get-value))
+                                                             (message-box "instuction" "manually start server by running Networking.rkt and then press OK")
+                                                               (send lan show #f) (send new-frame show #f)
+                                                               (send move-frame show #t) (network LOCALHOST player1-name)))]))
+(define b4 (new button% [parent lan] [label "join"] [callback
+                                          (lambda (b e)
+                                            (begin (set! player1-name (send plan get-value))
+                                                   (send exist show #t) (send lan show #f)))]))
+
+
+(define b6 (new button% [parent exist] [label "start"] [callback
+                                           (lambda (b e)
+                                             (begin (set! ipent (send s get-value))
+                                                   (send new-frame show #f) (send lan show #f) (send exist show #f)
+                                                   (send move-frame show #t) (network ipent player1-name)))]))
+
+(define my-canvas%
+  (class canvas%
+    (define/override (on-event event)
+      (let ((x (if (eq? 'left-down (send event get-event-type)) (send event get-x) 0))
+            (y (if (eq? 'left-down (send event get-event-type)) (send event get-y) 0)))
+        (cond [(and (< x 432) (> x 341) (< y 209) (> y 170)) (send 1p show #t)]
+              [(and (< x 432) (> x 341) (< y 282) (> y 242)) (send 2p show #t)]
+              [(and (< x 432) (> x 341) (< y 356) (> y 318)) (send lan show #t)]
+              [(and (< x 432) (> x 341) (< y 431) (> y 394)) (help)]
+              [(and (< x 432) (> x 341) (< y 506) (> y 467)) (credits)])))
+    (super-new)))
+
+(define mycanvas (new my-canvas% 
+                      [parent new-frame]
+                      [paint-callback (λ (c d)
+                                        (send d draw-bitmap (read-bitmap "ches.png") 0 0) )]))
+
+(define (credits)
+  (message-box  "CREDITS"
+                "This Game is created by 
+                                    Anurag Shirolkar,
+                                    Dheerendra Singh Rathor and
+                                    Deependra Patel
+as a project for CS154: Programming Paradigms Laboratory under the guidance of  Prof. Amitabha Sanyal."))
+
+(define (help)
+  (message-box "HELP"
+               "                           CHESS
+
+How to play:
+1. For Chess Rules go to http://en.wikipedia.org/wiki/Chess .
+2. For playing against Computer click on button '1 Player'.
+   Then a pop-up window will appear and you should write your    
+   name there. Then click on Start and enjoy your game.
+3. For playing with a human opponent click on '2 Player'.  
+   Again a pop-up appear and will ask for player-1 name,
+   player-2 name and desired time. Enter your details and if  
+   Unlimited time and leave desired time unchanged. Click on     
+   start and here it goes.
+4. If you want to play with your friend who is not with you      
+   right now then 'LANchess' is perfect for you. Just anyone     
+   of you start server and other should join with correct IP     
+   and tighten your friendship with 'LANchess'.
+5. Well you know well about 'HELP' Button, it will show you      
+   same thing.
+6. And if enjoyed the game and want to thank the creaters        
+   than you can click on 'Credits'.
+
+
+General Instructions :-
+
+1. Whenever you click on a desired coin to move, we will show 
+   you green signals for your move. You can even change your 
+   choice before you give final commands to your coin.
+2. while playing against CPU and playing on LAN we had also   
+   provided you to see opponent's move in case you are not  
+   paying attention on game, but while playing with your 
+   friend this facility is not available.
+
+Some other things :-
+1. we hadn't included 'Castling'. So please  
+   don't try them, We are extremely sorry for that.
+
+**********THANKS FOR PLAYING*********"))
+
