@@ -1,5 +1,5 @@
 chess-in-DrRacket
 =================
-It was our CS152 project.The program is fully written in MIT scheme.We implemented good gui and artificial intelligence.
-The game can also be played on LAN if you have Dr Scheme installed in your computer.We used Minimax tree and alpha-beta 
-pruning for artificial intelligence.
+This project was made during the spring semester in 2012-13 as a part of Programming and Paradigm laboratory under the guidance of prof. Amitabha Sanyal.This is programmed in MIT scheme.This is basic level of 2-player chess game including Artficial Intelligence upto 6 moves determination in normal time constraint and GUI. Classical Minimax tree algorithm and Alpha Beta Pruning is used for aritficial intelligence.
+This game can also be played on LAN with another player with DrRacket installed on both systems.
+
