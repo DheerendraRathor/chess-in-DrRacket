@@ -4,8 +4,8 @@ This project was made during the spring semester in 2012-13 as a part of Program
 This game can also be played on LAN with another player with DrRacket installed on both systems.
 
 Author:
-1. Anurag Shirolkar
-2. Deependra Patel
+1. Anurag Shirolkar (https://github.com/anuragshirolkar)
+2. Deependra Patel  (https://github.com/Deependra-Patel)
 3. Dheerendra Rathor
 
 Main Language: MIT-Scheme
